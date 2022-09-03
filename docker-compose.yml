@@ -75,36 +75,67 @@ services:
       - '--certificatesResolvers.letsencrypt.acme.storage=/etc/traefik/acme.json'
       - '--certificatesResolvers.letsencrypt.acme.httpChallenge.entryPoint=http'
       - '--log=true'
-      - '--log.level=DEBUG'
+      - '--log.level=INFO'
+      - '--log.filepath=/etc/traefik/traefik.log'
+      - '--accesslog=true'
+      - '--accesslog.fields.headers.defaultmode=keep'
+      - '--accesslog.filepath=/etc/traefik/access.log'
 
-  secure:
+  whoami:
     image: traefik/whoami
-    container_name: secure
+    container_name: whoami
     networks:
       - net
     labels:
       - 'traefik.enable=true'
-      - 'traefik.http.routers.secure.rule=Host(`secure.${HOSTNAME}`)'
-      - 'traefik.http.routers.secure.entrypoints=https'
-      - 'traefik.http.routers.secure.tls=true'
-      - 'traefik.http.routers.secure.tls.certresolver=letsencrypt'
-      - 'traefik.http.routers.secure.middlewares=authelia@docker'
+      - 'traefik.http.routers.whoami.rule=Host(`whoami.${HOSTNAME}`)'
+      - 'traefik.http.routers.whoami.entrypoints=https'
+      - 'traefik.http.routers.whoami.tls=true'
+      - 'traefik.http.routers.whoami.tls.certresolver=letsencrypt'
+      - 'traefik.http.routers.whoami.middlewares=authelia@docker'
     expose:
       - 80
     restart: unless-stopped
 
-  public:
-    image: traefik/whoami
-    container_name: public
+  heimdall:
+    image: linuxserver/heimdall
+    container_name: heimdall
     networks:
       - net
+    volumes:
+      - ./heimdal:/config
     labels:
       - 'traefik.enable=true'
-      - 'traefik.http.routers.public.rule=Host(`public.${HOSTNAME}`)'
-      - 'traefik.http.routers.public.entrypoints=https'
-      - 'traefik.http.routers.public.tls=true'
-      - 'traefik.http.routers.public.tls.certresolver=letsencrypt'
-      - 'traefik.http.routers.public.middlewares=authelia@docker'
+      - 'traefik.http.routers.whoami.rule=Host(`launcher.${HOSTNAME}`)'
+      - 'traefik.http.routers.whoami.entrypoints=https'
+      - 'traefik.http.routers.whoami.tls=true'
+      - 'traefik.http.routers.whoami.tls.certresolver=letsencrypt'
+      - 'traefik.http.routers.whoami.middlewares=authelia@docker'
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TIMEZONE}
+    expose:
+      - 80
+    restart: unless-stopped
+
+  speedtest:
+    image: adolfintel/speedtest
+    container_name: speedtest
+    networks:
+      - net
+    volumes:
+      - ./heimdal:/config
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.whoami.rule=Host(`speed.${HOSTNAME}`)'
+      - 'traefik.http.routers.whoami.entrypoints=https'
+      - 'traefik.http.routers.whoami.tls=true'
+      - 'traefik.http.routers.whoami.tls.certresolver=letsencrypt'
+      - 'traefik.http.routers.whoami.middlewares=authelia@docker'
+    environment:
+      - TZ=${TIMEZONE}
+      - DISTANCE=mi
     expose:
       - 80
     restart: unless-stopped
