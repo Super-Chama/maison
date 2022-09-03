@@ -3,8 +3,9 @@
 #                   Authelia configuration                    #
 ###############################################################
 
+theme: dark
 jwt_secret: a_very_important_secret
-default_redirection_url: https://public.example.com
+default_redirection_url: https://launcher.example.com
 
 server:
   host: 0.0.0.0
@@ -23,12 +24,10 @@ authentication_backend:
 access_control:
   default_policy: deny
   rules:
-    - domain: public.example.com
+    - domain: auth.example.com
       policy: bypass
-    - domain: traefik.example.com
+    - domain: '*.example.com'
       policy: one_factor
-    - domain: secure.example.com
-      policy: two_factor
 
 session:
   name: authelia_session
