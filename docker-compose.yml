@@ -106,11 +106,11 @@ services:
       - ./heimdal:/config
     labels:
       - 'traefik.enable=true'
-      - 'traefik.http.routers.whoami.rule=Host(`launcher.${HOSTNAME}`)'
-      - 'traefik.http.routers.whoami.entrypoints=https'
-      - 'traefik.http.routers.whoami.tls=true'
-      - 'traefik.http.routers.whoami.tls.certresolver=letsencrypt'
-      - 'traefik.http.routers.whoami.middlewares=authelia@docker'
+      - 'traefik.http.routers.heimdall.rule=Host(`launcher.${HOSTNAME}`)'
+      - 'traefik.http.routers.heimdall.entrypoints=https'
+      - 'traefik.http.routers.heimdall.tls=true'
+      - 'traefik.http.routers.heimdall.tls.certresolver=letsencrypt'
+      - 'traefik.http.routers.heimdall.middlewares=authelia@docker'
     environment:
       - PUID=1000
       - PGID=1000
@@ -128,11 +128,11 @@ services:
       - ./heimdal:/config
     labels:
       - 'traefik.enable=true'
-      - 'traefik.http.routers.whoami.rule=Host(`speed.${HOSTNAME}`)'
-      - 'traefik.http.routers.whoami.entrypoints=https'
-      - 'traefik.http.routers.whoami.tls=true'
-      - 'traefik.http.routers.whoami.tls.certresolver=letsencrypt'
-      - 'traefik.http.routers.whoami.middlewares=authelia@docker'
+      - 'traefik.http.routers.speedtest.rule=Host(`speed.${HOSTNAME}`)'
+      - 'traefik.http.routers.speedtest.entrypoints=https'
+      - 'traefik.http.routers.speedtest.tls=true'
+      - 'traefik.http.routers.speedtest.tls.certresolver=letsencrypt'
+      - 'traefik.http.routers.speedtest.middlewares=authelia@docker'
     environment:
       - TZ=${TIMEZONE}
       - DISTANCE=mi
