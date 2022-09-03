@@ -52,9 +52,7 @@ services:
     image: authelia/authelia
     container_name: authelia
     volumes:
-      - ./authelia/authelia:/var/lib/authelia
-      - ./authelia/configuration.yml:/etc/authelia/configuration.yml:ro
-      - ./authelia/users_database.yml:/etc/authelia/users_database.yml
+      - ./authelia:/config
     networks:
       - proxy_network
     labels:
@@ -68,6 +66,8 @@ services:
     expose:
       - 9091
     restart: unless-stopped
+    healthcheck:
+      disable: true
     environment:
       - TZ=${TIMEZONE}
 
