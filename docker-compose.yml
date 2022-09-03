@@ -1,0 +1,130 @@
+version: "3.7"
+services:
+  traefik:
+    image: traefik:v2.8
+    container_name: traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.api.rule=Host(`traefik.${HOSTNAME}`)"
+      - "traefik.http.routers.api.entrypoints=https"
+      - "traefik.http.routers.api.service=api@internal"
+      - "traefik.http.routers.api.tls=true"
+      - "traefik.http.routers.api.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.api.middlewares=authelia@docker"
+    command:
+      - "--api"
+      - "--providers.file=true"
+      - "--entrypoints.http=true"
+      - "--providers.docker=true"
+      - "--entrypoints.https=true"
+      - "--entrypoints.http.address=:80"
+      - "--entrypoints.https.address=:443"
+      - "--providers.docker.exposedByDefault=false"
+      - "--providers.file.directory=/etc/traefik/dynamic"
+      - "--entrypoints.http.http.redirections.entrypoint.to=https"
+      - "--entrypoints.http.http.redirections.entrypoint.scheme=https"
+      - "--entrypoints.http.http.redirections.entrypoint.priority=10"
+      - "--certificatesResolvers.letsencrypt.acme.email=${LETSENCRYPT_EMAIL}"
+      - "--certificatesResolvers.letsencrypt.acme.storage=/acme.json"
+      - "--certificatesResolvers.letsencrypt.acme.httpChallenge.entryPoint=http"
+      - "--log=true"
+      - "--log.level=INFO"
+      - "--log.filepath=/var/log/traefik.log"
+      - "--accesslog=true"
+      - "--accesslog.fields.headers.defaultmode=keep"
+      - "--accesslog.filepath=/var/log/access.log"
+    environment:
+      - TZ=${TIMEZONE}
+    ports:
+      - 80:80
+      - 443:443
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./traefik/acme.json:/acme.json
+      - ./traefik/traefik.log:/var/log/traefik.log
+      - ./traefik/access.log:/var/log/access.log
+      - ./traefik/config:/etc/traefik/dynamic
+    networks:
+      - proxy_network
+
+  authelia:
+    image: authelia/authelia
+    container_name: authelia
+    volumes:
+      - ./authelia/authelia:/var/lib/authelia
+      - ./authelia/configuration.yml:/etc/authelia/configuration.yml:ro
+      - ./authelia/users_database.yml:/etc/authelia/users_database.yml
+    networks:
+      - proxy_network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.authelia.rule=Host(`auth.${HOSTNAME}`)"
+      - "traefik.http.routers.authelia.entrypoints=https"
+      - "traefik.http.routers.authelia.tls=true"
+      - "traefik.http.routers.authelia.tls.certresolver=letsencrypt"
+      - "traefik.http.middlewares.authelia.forwardauth.address=http://authelia:9091/api/verify?rd=https://auth.${HOSTNAME}"
+      - "traefik.http.middlewares.authelia.forwardauth.trustForwardHeader=true"
+    expose:
+      - 9091
+    restart: unless-stopped
+    environment:
+      - TZ=${TIMEZONE}
+
+  # Used by authelia
+  redis:
+    image: redis:alpine
+    container_name: redis
+    volumes:
+      - ./redis:/data
+    networks:
+      - proxy_network
+    expose:
+      - 6379
+    restart: unless-stopped
+    environment:
+      - TZ=${TIMEZONE}
+
+  heimdall:
+    image: linuxserver/heimdall
+    container_name: heimdall
+    volumes:
+      - ./heimdal-config:/config
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.heimdall.rule=Host(`home.${HOSTNAME}`)"
+      - "traefik.http.routers.heimdall.entrypoints=https"
+      - "traefik.http.routers.heimdall.tls=true"
+      - "traefik.http.routers.heimdall.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.heimdall.middlewares=authelia@docker"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TIMEZONE}
+    expose:
+      - "80"
+    restart: unless-stopped
+    networks:
+      - proxy_network
+
+  speedtest:
+    image: adolfintel/speedtest
+    container_name: speedtest
+    environment:
+      - TZ=${TIMEZONE}
+      - DISTANCE=mi
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.speed.rule=Host(`speed.${HOSTNAME}`)"
+      - "traefik.http.routers.speed.entrypoints=https"
+      - "traefik.http.routers.speed.tls=true"
+      - "traefik.http.routers.speed.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.speed.middlewares=authelia@docker"
+    expose:
+      - "80"
+    restart: unless-stopped
+    networks:
+      - proxy_network
+
+networks:
+  proxy_network:
