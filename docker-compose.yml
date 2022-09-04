@@ -190,29 +190,29 @@ services:
       - 80
     restart: unless-stopped
 
-  # jellyfin:
-  #   image: lscr.io/linuxserver/jellyfin
-  #   container_name: jellyfin
-  #   networks:
-  #     - net
-  #   environment:
-  #     - PUID=1000
-  #     - PGID=1000
-  #     - TZ=${TIMEZONE}
-  #   volumes:
-  #     - ./jellyfin/config:/config
-  #     - ${DOWNLOADS_DIR}:/data
-  #   labels:
-  #     - 'traefik.enable=true'
-  #     - 'traefik.port=8096'
-  #     - 'traefik.http.routers.jellyfin.rule=Host(`jellyfin.${HOSTNAME}`)'
-  #     - 'traefik.http.routers.jellyfin.entrypoints=https'
-  #     - 'traefik.http.routers.jellyfin.tls=true'
-  #     - 'traefik.http.routers.jellyfin.tls.certresolver=letsencrypt'
-  #     - 'traefik.http.routers.jellyfin.middlewares=authelia@docker'
-  #   expose:
-  #     - 8096
-  #   restart: unless-stopped
+  jellyfin:
+    image: lscr.io/linuxserver/jellyfin
+    container_name: jellyfin
+    networks:
+      - net
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TIMEZONE}
+    volumes:
+      - ./jellyfin/config:/config
+      - ${DOWNLOADS_DIR}:/data
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.port=8096'
+      - 'traefik.http.routers.jellyfin.rule=Host(`jellyfin.${HOSTNAME}`)'
+      - 'traefik.http.routers.jellyfin.entrypoints=https'
+      - 'traefik.http.routers.jellyfin.tls=true'
+      - 'traefik.http.routers.jellyfin.tls.certresolver=letsencrypt'
+      - 'traefik.http.routers.jellyfin.middlewares=authelia@docker'
+    expose:
+      - 8096
+    restart: unless-stopped
 
   # olaris:
   #   image: olaristv/olaris-server
@@ -238,22 +238,22 @@ services:
   #     - 8080
   #   restart: unless-stopped
 
-  dim:
-    image: ghcr.io/dusk-labs/dim:dev
-    container_name: dim
-    networks:
-      - net
-    volumes:
-      - ./dim:/opt/dim/config
-      - ${DOWNLOADS_DIR}:/media
-    labels:
-      - 'traefik.enable=true'
-      - 'traefik.port=8000'
-      - 'traefik.http.routers.dim.rule=Host(`dim.${HOSTNAME}`)'
-      - 'traefik.http.routers.dim.entrypoints=https'
-      - 'traefik.http.routers.dim.tls=true'
-      - 'traefik.http.routers.dim.tls.certresolver=letsencrypt'
-      - 'traefik.http.routers.dim.middlewares=authelia@docker'
-    expose:
-      - 8000
-    restart: unless-stopped
+  # dim:
+  #   image: ghcr.io/dusk-labs/dim:dev
+  #   container_name: dim
+  #   networks:
+  #     - net
+  #   volumes:
+  #     - ./dim:/opt/dim/config
+  #     - ${DOWNLOADS_DIR}:/media
+  #   labels:
+  #     - 'traefik.enable=true'
+  #     - 'traefik.port=8000'
+  #     - 'traefik.http.routers.dim.rule=Host(`dim.${HOSTNAME}`)'
+  #     - 'traefik.http.routers.dim.entrypoints=https'
+  #     - 'traefik.http.routers.dim.tls=true'
+  #     - 'traefik.http.routers.dim.tls.certresolver=letsencrypt'
+  #     - 'traefik.http.routers.dim.middlewares=authelia@docker'
+  #   expose:
+  #     - 8000
+  #   restart: unless-stopped
