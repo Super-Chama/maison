@@ -166,7 +166,7 @@ services:
     restart: unless-stopped
 
   filebrowser:
-    image: filebrowser/filebrowser:s6
+    image: filebrowser/filebrowser
     container_name: filebrowser
     networks:
       - net
@@ -175,9 +175,8 @@ services:
       - PGID=1000
     volumes:
       - ${DOWNLOADS_DIR}:/srv
-      - ./filebrowser:/config/settings.json
-      - ./filebrowser:/database/filebrowser.db
-    command: ["--noauth"]
+      - ./filebrowser/config:/config
+      - ./filebrowser/database:/database
     labels:
       - 'traefik.enable=true'
       - 'traefik.http.routers.filebrowser.rule=Host(`files.${HOSTNAME}`)'
