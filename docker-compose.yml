@@ -189,3 +189,24 @@ services:
     expose:
       - 80
     restart: unless-stopped
+
+  jellyfin:
+    image: lscr.io/linuxserver/jellyfin
+    container_name: jellyfin
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TIMEZONE}
+    volumes:
+      - ./jellyfin/config:/config
+      - ${DOWNLOADS_DIR}:/data
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.jellyfin.rule=Host(`jellyfin.${HOSTNAME}`)'
+      - 'traefik.http.routers.jellyfin.entrypoints=https'
+      - 'traefik.http.routers.jellyfin.tls=true'
+      - 'traefik.http.routers.jellyfin.tls.certresolver=letsencrypt'
+      - 'traefik.http.routers.jellyfin.middlewares=authelia@docker'
+    ports:
+      - 80:8096
+    restart: unless-stopped
