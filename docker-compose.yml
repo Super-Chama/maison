@@ -190,26 +190,50 @@ services:
       - 80
     restart: unless-stopped
 
-  jellyfin:
-    image: lscr.io/linuxserver/jellyfin
-    container_name: jellyfin
+  # jellyfin:
+  #   image: lscr.io/linuxserver/jellyfin
+  #   container_name: jellyfin
+  #   networks:
+  #     - net
+  #   environment:
+  #     - PUID=1000
+  #     - PGID=1000
+  #     - TZ=${TIMEZONE}
+  #   volumes:
+  #     - ./jellyfin/config:/config
+  #     - ${DOWNLOADS_DIR}:/data
+  #   labels:
+  #     - 'traefik.enable=true'
+  #     - 'traefik.port=8096'
+  #     - 'traefik.http.routers.jellyfin.rule=Host(`jellyfin.${HOSTNAME}`)'
+  #     - 'traefik.http.routers.jellyfin.entrypoints=https'
+  #     - 'traefik.http.routers.jellyfin.tls=true'
+  #     - 'traefik.http.routers.jellyfin.tls.certresolver=letsencrypt'
+  #     - 'traefik.http.routers.jellyfin.middlewares=authelia@docker'
+  #   expose:
+  #     - 8096
+  #   restart: unless-stopped
+
+  olaris:
+    image: olaristv/olaris-server
+    container_name: olaris
     networks:
       - net
     environment:
-      - PUID=1000
-      - PGID=1000
+      - OLARIS_UID=1000
+      - OLARIS_GID=1000
       - TZ=${TIMEZONE}
     volumes:
-      - ./jellyfin/config:/config
-      - ${DOWNLOADS_DIR}:/data
+      - ${DOWNLOADS_DIR}:/var/media
+      - ./olaris/config:/home/olaris/.config/olaris
     labels:
       - 'traefik.enable=true'
-      - 'traefik.port=8096'
-      - 'traefik.http.routers.jellyfin.rule=Host(`jellyfin.${HOSTNAME}`)'
-      - 'traefik.http.routers.jellyfin.entrypoints=https'
-      - 'traefik.http.routers.jellyfin.tls=true'
-      - 'traefik.http.routers.jellyfin.tls.certresolver=letsencrypt'
-      - 'traefik.http.routers.jellyfin.middlewares=authelia@docker'
+      - 'traefik.port=8080'
+      - 'traefik.http.routers.olaris.rule=Host(`olaris.${HOSTNAME}`)'
+      - 'traefik.http.routers.olaris.entrypoints=https'
+      - 'traefik.http.routers.olaris.tls=true'
+      - 'traefik.http.routers.olaris.tls.certresolver=letsencrypt'
+      - 'traefik.http.routers.olaris.middlewares=authelia@docker'
     expose:
-      - 8096
+      - 8080
     restart: unless-stopped
