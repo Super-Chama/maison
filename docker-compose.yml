@@ -204,11 +204,12 @@ services:
       - ${DOWNLOADS_DIR}:/data
     labels:
       - 'traefik.enable=true'
+      - 'traefik.port=8096'
       - 'traefik.http.routers.jellyfin.rule=Host(`jellyfin.${HOSTNAME}`)'
       - 'traefik.http.routers.jellyfin.entrypoints=https'
       - 'traefik.http.routers.jellyfin.tls=true'
       - 'traefik.http.routers.jellyfin.tls.certresolver=letsencrypt'
       - 'traefik.http.routers.jellyfin.middlewares=authelia@docker'
-    ports:
-      - 80:8096
+    expose:
+      - 8096
     restart: unless-stopped
