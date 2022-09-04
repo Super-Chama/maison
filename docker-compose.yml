@@ -225,7 +225,7 @@ services:
       - TZ=${TIMEZONE}
     volumes:
       - ${DOWNLOADS_DIR}:/var/media
-      - ./olaris/config:/home/olaris/.config/olaris
+      - ./olaris:/home/olaris/.config/olaris
     labels:
       - 'traefik.enable=true'
       - 'traefik.port=8080'
