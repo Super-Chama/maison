@@ -282,11 +282,11 @@ services:
     labels:
       - 'traefik.enable=true'
       - 'traefik.port=19999'
-      - 'traefik.http.netdata.dim.rule=Host(`status.${HOSTNAME}`)'
-      - 'traefik.http.netdata.dim.entrypoints=https'
-      - 'traefik.http.netdata.dim.tls=true'
-      - 'traefik.http.netdata.dim.tls.certresolver=letsencrypt'
-      - 'traefik.http.netdata.dim.middlewares=authelia@docker'
+      - 'traefik.http.routers.netdata.rule=Host(`status.${HOSTNAME}`)'
+      - 'traefik.http.routers.netdata.entrypoints=https'
+      - 'traefik.http.routers.netdata.tls=true'
+      - 'traefik.http.routers.netdata.tls.certresolver=letsencrypt'
+      - 'traefik.http.routers.netdata.middlewares=authelia@docker'
     expose:
       - 19999
     restart: unless-stopped
