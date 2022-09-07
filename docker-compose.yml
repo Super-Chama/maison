@@ -257,3 +257,36 @@ services:
   #   expose:
   #     - 8000
   #   restart: unless-stopped
+
+  netdata:
+    image: netdata/netdata
+    container_name: netdata
+    hostname: ${HOSTNAME}
+    networks:
+      - net
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - apparmor:unconfined
+    environment:
+      - DISABLE_TELEMETRY=1
+    volumes:
+      - ./netdata/netdataconfig:/etc/netdata
+      - ./netdata/netdatalib:/var/lib/netdata
+      - ./netdata/netdatacache:/var/cache/netdata
+      - /etc/passwd:/host/etc/passwd:ro
+      - /etc/group:/host/etc/group:ro
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /etc/os-release:/host/etc/os-release:ro
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.port=19999'
+      - 'traefik.http.netdata.dim.rule=Host(`status.${HOSTNAME}`)'
+      - 'traefik.http.netdata.dim.entrypoints=https'
+      - 'traefik.http.netdata.dim.tls=true'
+      - 'traefik.http.netdata.dim.tls.certresolver=letsencrypt'
+      - 'traefik.http.netdata.dim.middlewares=authelia@docker'
+    expose:
+      - 19999
+    restart: unless-stopped
