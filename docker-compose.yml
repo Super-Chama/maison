@@ -270,6 +270,8 @@ services:
       - apparmor:unconfined
     environment:
       - DISABLE_TELEMETRY=1
+      - DOCKER_USR=1026
+      - DOCKER_GRP=100
     volumes:
       - ./netdata/netdataconfig:/etc/netdata
       - ./netdata/netdatalib:/var/lib/netdata
