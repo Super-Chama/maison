@@ -290,3 +290,36 @@ services:
     expose:
       - 19999
     restart: unless-stopped
+
+  wgweb:
+    image: vx3r/wg-gen-web
+    container_name: wgweb
+    networks:
+      - net
+    environment:
+      - WG_CONF_DIR=/data
+      - WG_INTERFACE_NAME=wg0.conf
+    volumes:
+      - /etc/wireguard:/data
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.port=8080'
+      - 'traefik.http.routers.wgweb.rule=Host(`vpn.${HOSTNAME}`)'
+      - 'traefik.http.routers.wgweb.entrypoints=https'
+      - 'traefik.http.routers.wgweb.tls=true'
+      - 'traefik.http.routers.wgweb.tls.certresolver=letsencrypt'
+      - 'traefik.http.routers.wgweb.middlewares=authelia@docker'
+    expose:
+      - 8080
+    restart: unless-stopped
+
+  wg-json-api:
+    image: james/wg-api:latest
+    container_name: wg-json-api
+    networks:
+      - net
+    cap_add:
+      - NET_ADMIN
+    network_mode: 'host'
+    command: wg-api --device wg0 --listen <API_LISTEN_IP>:8182
+    restart: unless-stopped
