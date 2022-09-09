@@ -316,12 +316,14 @@ services:
     restart: unless-stopped
 
   wg-json-api:
-    image: james/wg-api:latest
+    image: james/wg-api
     container_name: wg-json-api
     networks:
       - net
     cap_add:
       - NET_ADMIN
-    network_mode: 'host'
-    command: wg-api --device wg0 --listen <API_LISTEN_IP>:8182
+    command: wg-api --device wg0
+    ports:
+      - 8080:8080
+    # network_mode: 'host'
     restart: unless-stopped
