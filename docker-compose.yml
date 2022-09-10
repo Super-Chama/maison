@@ -328,3 +328,28 @@ services:
       - NET_ADMIN
     network_mode: 'host'
     command: wg-api --device wg0 --listen 172.21.0.1:8182
+
+  jackett:
+    image: lscr.io/linuxserver/jackett
+    container_name: jackett
+    networks:
+      - net
+    environment:
+      - PUID=${UID}
+      - PGID=${PID}
+      - TZ=${TIMEZONE}
+      - AUTO_UPDATE=true
+    volumes:
+      - ./jackett:/config
+      - ${DOWNLOADS_DIR}/blackhole:/downloads
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.port=8080'
+      - 'traefik.http.routers.jackett.rule=Host(`jackett.${HOSTNAME}`)'
+      - 'traefik.http.routers.jackett.entrypoints=https'
+      - 'traefik.http.routers.jackett.tls=true'
+      - 'traefik.http.routers.jackett.tls.certresolver=letsencrypt'
+      - 'traefik.http.routers.jackett.middlewares=authelia@docker'
+    expose:
+      - 9117
+    restart: unless-stopped
