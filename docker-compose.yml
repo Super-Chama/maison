@@ -378,3 +378,28 @@ services:
     expose:
       - 8989
     restart: unless-stopped
+
+  radarr:
+    image: lscr.io/linuxserver/radarr
+    container_name: radarr
+    networks:
+      - net
+    environment:
+      - PUID=${UID}
+      - PGID=${PID}
+      - TZ=${TIMEZONE}
+    volumes:
+      - ./sonarr:/config
+      - ${DOWNLOADS_DIR}/Media:/tv
+      - ${DOWNLOADS_DIR}/UNFINISHED_DONT_DOWNLOAD:/downloads
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.port=7878'
+      - 'traefik.http.routers.radarr.rule=Host(`radarr.${HOSTNAME}`)'
+      - 'traefik.http.routers.radarr.entrypoints=https'
+      - 'traefik.http.routers.radarr.tls=true'
+      - 'traefik.http.routers.radarr.tls.certresolver=letsencrypt'
+      - 'traefik.http.routers.radarr.middlewares=authelia@docker'
+    expose:
+      - 7878
+    restart: unless-stopped
