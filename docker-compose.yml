@@ -305,6 +305,7 @@ services:
     environment:
       - WG_CONF_DIR=/data
       - WG_INTERFACE_NAME=wg0.conf
+      - WG_STATS_API=http://172.21.0.1:8182
     volumes:
       - /etc/wireguard:/data
     labels:
