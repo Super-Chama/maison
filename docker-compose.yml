@@ -341,7 +341,6 @@ services:
       - AUTO_UPDATE=true
     volumes:
       - ./jackett:/config
-      - ${DOWNLOADS_DIR}/blackhole:/downloads
     labels:
       - 'traefik.enable=true'
       - 'traefik.port=9117'
@@ -366,7 +365,7 @@ services:
     volumes:
       - ./sonarr:/config
       - ${DOWNLOADS_DIR}/Media:/tv
-      - ${DOWNLOADS_DIR}/UNFINISHED_DONT_DOWNLOAD:/downloads
+      - ${DOWNLOADS_DIR}:/downloads
     labels:
       - 'traefik.enable=true'
       - 'traefik.port=8989'
@@ -389,9 +388,9 @@ services:
       - PGID=${GID}
       - TZ=${TIMEZONE}
     volumes:
-      - ./sonarr:/config
+      - ./radarr:/config
       - ${DOWNLOADS_DIR}/Media:/tv
-      - ${DOWNLOADS_DIR}/UNFINISHED_DONT_DOWNLOAD:/downloads
+      - ${DOWNLOADS_DIR}:/downloads
     labels:
       - 'traefik.enable=true'
       - 'traefik.port=7878'
