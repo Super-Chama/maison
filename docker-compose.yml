@@ -402,3 +402,27 @@ services:
     expose:
       - 7878
     restart: unless-stopped
+
+  tubesync:
+    image: ghcr.io/meeb/tubesync:latest
+    container_name: tubesync
+    networks:
+      - net
+    environment:
+      - PUID=${UID}
+      - PGID=${GID}
+      - TZ=${TIMEZONE}
+    volumes:
+      - ./tubesync/config:/config
+      - ${DOWNLOADS_DIR}:/downloads
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.port=4848'
+      - 'traefik.http.routers.tubesync.rule=Host(`tubesync.${HOSTNAME}`)'
+      - 'traefik.http.routers.tubesync.entrypoints=https'
+      - 'traefik.http.routers.tubesync.tls=true'
+      - 'traefik.http.routers.tubesync.tls.certresolver=letsencrypt'
+      - 'traefik.http.routers.tubesync.middlewares=authelia@docker'
+    expose:
+      - 4848
+    restart: unless-stopped
