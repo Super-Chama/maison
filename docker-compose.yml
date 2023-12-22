@@ -87,6 +87,11 @@ services:
       - traefik.http.routers.prowlarr.tls.certresolver=letsencrypt
       - traefik.http.routers.prowlarr.entrypoints=websecure
       - traefik.http.services.prowlarr.loadbalancer.server.port=9696
+      - traefik.http.routers.prowlarr.middlewares=prowlarr-strip-slash,prowlarr-stripprefix
+      - traefik.http.middlewares.prowlarr-stripprefix.stripPrefix.prefixes=/prowlarr
+      - traefik.http.middlewares.prowlarr-strip-slash.redirectregex.regex=(^.*\/prowlarr$$)
+      - traefik.http.middlewares.prowlarr-strip-slash.redirectregex.replacement=$$1/
+      - traefik.http.middlewares.prowlarr-strip-slash.redirectregex.permanent=false
       - homepage.group=Download
       - homepage.name=Prowlarr
       - homepage.icon=prowlarr.png
@@ -166,6 +171,11 @@ services:
       - traefik.http.routers.radarr.tls.certresolver=letsencrypt
       - traefik.http.routers.radarr.entrypoints=websecure
       - traefik.http.services.radarr.loadbalancer.server.port=7878
+      - traefik.http.routers.radarr.middlewares=radarr-strip-slash,radarr-stripprefix
+      - traefik.http.middlewares.radarr-stripprefix.stripPrefix.prefixes=/radarr
+      - traefik.http.middlewares.radarr-strip-slash.redirectregex.regex=(^.*\/radarr$$)
+      - traefik.http.middlewares.radarr-strip-slash.redirectregex.replacement=$$1/
+      - traefik.http.middlewares.radarr-strip-slash.redirectregex.permanent=false
       - homepage.group=Media
       - homepage.name=Radarr
       - homepage.icon=radarr.png
@@ -201,3 +211,8 @@ services:
       - traefik.http.routers.filebrowser.tls=true
       - traefik.http.routers.filebrowser.tls.certresolver=letsencrypt
       - traefik.http.routers.filebrowser.entrypoints=websecure
+      - traefik.http.routers.filebrowser.middlewares=filebrowser-strip-slash,filebrowser-stripprefix
+      - traefik.http.middlewares.filebrowser-stripprefix.stripPrefix.prefixes=/files
+      - traefik.http.middlewares.filebrowser-strip-slash.redirectregex.regex=(^.*\/files$$)
+      - traefik.http.middlewares.filebrowser-strip-slash.redirectregex.replacement=$$1/
+      - traefik.http.middlewares.filebrowser-strip-slash.redirectregex.permanent=false
