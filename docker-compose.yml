@@ -1,4 +1,4 @@
-version: '3.7'
+version: '3.9'
 
 networks:
   default:
@@ -68,3 +68,136 @@ services:
       - traefik.http.routers.whoami.entrypoints=websecure
       - traefik.http.routers.whoami.tls.certresolver=letsencrypt
     restart: always
+
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
+    environment:
+      - PUID=${UID}
+      - PGID=${GID}
+      - TZ=${TIMEZONE}
+    volumes:
+      - ./prowlarr:/config
+    labels:
+      - traefik.enable=true
+      - traefik.http.middlewares.prowlarr-auth.basicauth.users=${USER_PASSWORD}
+      - traefik.http.routers.prowlarr.middlewares=prowlarr-auth
+      - traefik.http.routers.prowlarr.rule=(Host(`${HOSTNAME}`) && PathPrefix(`/prowlarr`))
+      - traefik.http.routers.prowlarr.tls=true
+      - traefik.http.routers.prowlarr.tls.certresolver=letsencrypt
+      - traefik.http.routers.prowlarr.entrypoints=websecure
+      - traefik.http.services.prowlarr.loadbalancer.server.port=9696
+      - homepage.group=Download
+      - homepage.name=Prowlarr
+      - homepage.icon=prowlarr.png
+      - homepage.href=/prowlarr
+      - homepage.description=Indexers management
+      - homepage.weight=4
+      - homepage.widget.type=prowlarr
+      - homepage.widget.url=http://prowlarr:9696/prowlarr
+      - homepage.widget.key=${PROWLARR_API_KEY}
+    restart: always
+    healthcheck:
+      test: [ "CMD", "curl", "--fail", "http://127.0.0.1:9696/prowlarr/ping" ]
+      interval: 5s
+      retries: 10
+
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:libtorrentv1
+    container_name: qbittorrent
+    environment:
+      - PUID=${UID}
+      - PGID=${GID}
+      - TZ=${TIMEZONE}
+      - WEBUI_PORT=8080
+    volumes:
+      - ./qbittorrent:/config
+      - ${DOWNLOADS_DIR}:/data/torrents
+    restart: always
+    labels:
+      - traefik.enable=true
+      - traefik.http.middlewares.qbittorrent-auth.basicauth.users=${USER_PASSWORD}
+      - traefik.http.routers.qbittorrent.middlewares=qbittorrent-auth
+      - traefik.http.routers.qbittorrent.rule=(Host(`${HOSTNAME}`) && PathPrefix(`/qbittorrent`))
+      - traefik.http.routers.qbittorrent.tls=true
+      - traefik.http.routers.qbittorrent.tls.certresolver=letsencrypt
+      - traefik.http.routers.qbittorrent.entrypoints=websecure
+      - traefik.http.services.qbittorrent.loadbalancer.server.port=8080
+      - traefik.http.routers.qbittorrent.middlewares=qbittorrent-strip-slash,qbittorrent-stripprefix
+      # https://github.com/qbittorrent/qBittorrent/issues/5693#issuecomment-552146296
+      - traefik.http.middlewares.qbittorrent-stripprefix.stripPrefix.prefixes=/qbittorrent
+      # https://community.traefik.io/t/middleware-to-add-the-if-needed/1895/19
+      - traefik.http.middlewares.qbittorrent-strip-slash.redirectregex.regex=(^.*\/qbittorrent$$)
+      - traefik.http.middlewares.qbittorrent-strip-slash.redirectregex.replacement=$$1/
+      - traefik.http.middlewares.qbittorrent-strip-slash.redirectregex.permanent=false
+      - homepage.group=Download
+      - homepage.name=qBittorrent
+      - homepage.icon=qbittorrent.png
+      - homepage.href=/qbittorrent
+      - homepage.description=Bittorrent client
+      - homepage.weight=5
+      - homepage.widget.type=qbittorrent
+      - homepage.widget.url=http://vpn:8080
+      - homepage.widget.username=${QBITTORRENT_USERNAME}
+      - homepage.widget.password=${QBITTORRENT_PASSWORD}
+    healthcheck:
+      # Container may fail if the PIA's token expired, so mark as unhealthy when there is no internet connection
+      # see: https://github.com/qdm12/gluetun/issues/641#issuecomment-933856220
+      test: [ "CMD", "curl", "--fail", "http://127.0.0.1:8080", "https://google.com" ]
+      interval: 5s
+      retries: 10
+
+  radarr:
+    image: lscr.io/linuxserver/radarr
+    container_name: radarr
+    environment:
+      - PUID=${UID}
+      - PGID=${GID}
+      - TZ=${TIMEZONE}
+    volumes:
+      - ./radarr:/config
+    restart: always
+    labels:
+      - traefik.enable=true
+      - traefik.http.middlewares.radarr-auth.basicauth.users=${USER_PASSWORD}
+      - traefik.http.routers.radarr.middlewares=radarr-auth
+      - traefik.http.routers.radarr.rule=(Host(`${HOSTNAME}`) && PathPrefix(`/radarr`))
+      - traefik.http.routers.radarr.tls=true
+      - traefik.http.routers.radarr.tls.certresolver=letsencrypt
+      - traefik.http.routers.radarr.entrypoints=websecure
+      - traefik.http.services.radarr.loadbalancer.server.port=7878
+      - homepage.group=Media
+      - homepage.name=Radarr
+      - homepage.icon=radarr.png
+      - homepage.href=/radarr
+      - homepage.description=Movies management
+      - homepage.weight=1
+      - homepage.widget.type=radarr
+      - homepage.widget.url=http://radarr:7878/radarr
+      - homepage.widget.key=${RADARR_API_KEY}
+    healthcheck:
+      test: [ "CMD", "curl", "--fail", "http://127.0.0.1:7878/radarr/ping" ]
+      interval: 5s
+      retries: 10
+  
+  filebrowser:
+    image: filebrowser/filebrowser
+    container_name: filebrowser
+    environment:
+      - PUID=${UID}
+      - PGID=${GID}
+      - FB_NOAUTH=noauth
+      - FB_BRANDING.DISABLEEXTERNAL=true
+    restart: always
+    volumes:
+      - ${DOWNLOADS_DIR}:/srv
+      - ./filebrowser/config:/config
+      - ./filebrowser/database:/database
+    labels:
+      - traefik.enable=true
+      - traefik.http.middlewares.filebrowser-auth.basicauth.users=${USER_PASSWORD}
+      - traefik.http.routers.filebrowser.middlewares=filebrowser-auth
+      - traefik.http.routers.filebrowser.rule=(Host(`${HOSTNAME}`) && PathPrefix(`/files`))
+      - traefik.http.routers.filebrowser.tls=true
+      - traefik.http.routers.filebrowser.tls.certresolver=letsencrypt
+      - traefik.http.routers.filebrowser.entrypoints=websecure
