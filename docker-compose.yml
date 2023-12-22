@@ -23,8 +23,9 @@ services:
       - --experimental.plugins.rewrite-body.version=v1.2.0
       - --experimental.plugins.rewriteHeaders.modulename=github.com/XciD/traefik-plugin-rewrite-headers
       - --experimental.plugins.rewriteHeaders.version=v0.0.3
-      - --certificatesresolvers.letsencrypt.acme.tlschallenge=true
+      - --certificatesresolvers.letsencrypt.acme.httpchallenge=true
       - --certificatesresolvers.letsencrypt.acme.email=${LETSENCRYPT_EMAIL}
+      - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web
       - --certificatesresolvers.letsencrypt.acme.storage=/etc/traefik/acme.json
     ports:
       - "80:80"
@@ -49,6 +50,7 @@ services:
       - traefik.enable=true
       - traefik.http.routers.homepage.rule=(Host(`${HOSTNAME}`) && PathPrefix(`/`))
       - traefik.http.routers.homepage.tls=true
+      - traefik.http.routers.homepage.entrypoints=websecure
       - traefik.http.routers.homepage.tls.certresolver=letsencrypt
       - traefik.http.services.homepage.loadbalancer.server.port=3000
 
@@ -59,5 +61,6 @@ services:
       - traefik.enable=true
       - traefik.http.routers.whoami.rule=(Host(`${HOSTNAME}`) && PathPrefix(`/whoami`))
       - traefik.http.routers.whoami.tls=true
+      - traefik.http.routers.whoami.entrypoints=websecure
       - traefik.http.routers.whoami.tls.certresolver=letsencrypt
     restart: always
