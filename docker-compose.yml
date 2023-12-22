@@ -23,6 +23,7 @@ services:
       - --experimental.plugins.rewrite-body.version=v1.2.0
       - --experimental.plugins.rewriteHeaders.modulename=github.com/XciD/traefik-plugin-rewrite-headers
       - --experimental.plugins.rewriteHeaders.version=v0.0.3
+      - --certificatesresolvers.letsencrypt.acme.tlschallenge=true
       - --certificatesresolvers.letsencrypt.acme.email=${LETSENCRYPT_EMAIL}
       - --certificatesresolvers.letsencrypt.acme.storage=/etc/traefik/acme.json
     ports:
