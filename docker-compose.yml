@@ -16,7 +16,6 @@ services:
       - --providers.docker.exposedbydefault=false
       - --entrypoints.web.address=:80
       - --entrypoints.websecure.address=:443
-      - --entrypoints.websecure.http.middlewares=lockit@docker
       - --entrypoints.web.http.redirections.entryPoint.to=websecure
       - --entrypoints.web.http.redirections.entryPoint.scheme=https
       - --entrypoints.web.http.redirections.entrypoint.permanent=true
@@ -51,7 +50,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     labels:
       - traefik.enable=true
-      - traefik.http.routers.homepage.middlewares=lockit
+      - traefik.http.routers.homepage.middlewares=lockit@file
       - traefik.http.routers.homepage.rule=(Host(`${HOSTNAME}`) && PathPrefix(`/`))
       - traefik.http.routers.homepage.tls=true
       - traefik.http.routers.homepage.entrypoints=websecure
@@ -63,7 +62,7 @@ services:
     container_name: whoami
     labels:
       - traefik.enable=true
-      - traefik.http.routers.whoami.middlewares=lockit
+      - traefik.http.routers.whoami.middlewares=lockit@file
       - traefik.http.routers.whoami.rule=(Host(`${HOSTNAME}`) && PathPrefix(`/whoami`))
       - traefik.http.routers.whoami.tls=true
       - traefik.http.routers.whoami.entrypoints=websecure
