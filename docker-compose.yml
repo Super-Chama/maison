@@ -218,49 +218,49 @@ services:
       - 8096
     restart: unless-stopped
 
-  # olaris:
-  #   image: olaristv/olaris-server
-  #   container_name: olaris
-  #   networks:
-  #     - net
-  #   environment:
-  #     - OLARIS_UID=1000
-  #     - OLARIS_GID=1000
-  #     - TZ=${TIMEZONE}
-  #   volumes:
-  #     - ${DOWNLOADS_DIR}:/var/media
-  #     - ./olaris:/home/olaris/.config/olaris
-  #   labels:
-  #     - 'traefik.enable=true'
-  #     - 'traefik.port=8080'
-  #     - 'traefik.http.routers.olaris.rule=Host(`olaris.${HOSTNAME}`)'
-  #     - 'traefik.http.routers.olaris.entrypoints=https'
-  #     - 'traefik.http.routers.olaris.tls=true'
-  #     - 'traefik.http.routers.olaris.tls.certresolver=letsencrypt'
-  #     - 'traefik.http.routers.olaris.middlewares=authelia@docker'
-  #   expose:
-  #     - 8080
-  #   restart: unless-stopped
+  olaris:
+    image: olaristv/olaris-server
+    container_name: olaris
+    networks:
+      - net
+    environment:
+      - OLARIS_UID=1000
+      - OLARIS_GID=1000
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${DOWNLOADS_DIR}:/var/media
+      - ./olaris:/home/olaris/.config/olaris
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.port=8080'
+      - 'traefik.http.routers.olaris.rule=Host(`olaris.${HOSTNAME}`)'
+      - 'traefik.http.routers.olaris.entrypoints=https'
+      - 'traefik.http.routers.olaris.tls=true'
+      - 'traefik.http.routers.olaris.tls.certresolver=letsencrypt'
+      - 'traefik.http.routers.olaris.middlewares=authelia@docker'
+    expose:
+      - 8080
+    restart: unless-stopped
 
-  # dim:
-  #   image: ghcr.io/dusk-labs/dim:dev
-  #   container_name: dim
-  #   networks:
-  #     - net
-  #   volumes:
-  #     - ./dim:/opt/dim/config
-  #     - ${DOWNLOADS_DIR}:/media
-  #   labels:
-  #     - 'traefik.enable=true'
-  #     - 'traefik.port=8000'
-  #     - 'traefik.http.routers.dim.rule=Host(`dim.${HOSTNAME}`)'
-  #     - 'traefik.http.routers.dim.entrypoints=https'
-  #     - 'traefik.http.routers.dim.tls=true'
-  #     - 'traefik.http.routers.dim.tls.certresolver=letsencrypt'
-  #     - 'traefik.http.routers.dim.middlewares=authelia@docker'
-  #   expose:
-  #     - 8000
-  #   restart: unless-stopped
+  dim:
+    image: ghcr.io/dusk-labs/dim:dev
+    container_name: dim
+    networks:
+      - net
+    volumes:
+      - ./dim:/opt/dim/config
+      - ${DOWNLOADS_DIR}:/media
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.port=8000'
+      - 'traefik.http.routers.dim.rule=Host(`dim.${HOSTNAME}`)'
+      - 'traefik.http.routers.dim.entrypoints=https'
+      - 'traefik.http.routers.dim.tls=true'
+      - 'traefik.http.routers.dim.tls.certresolver=letsencrypt'
+      - 'traefik.http.routers.dim.middlewares=authelia@docker'
+    expose:
+      - 8000
+    restart: unless-stopped
 
   netdata:
     image: netdata/netdata
@@ -425,4 +425,27 @@ services:
       - 'traefik.http.routers.tubesync.middlewares=authelia@docker'
     expose:
       - 4848
+    restart: unless-stopped
+
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
+    networks:
+      - net
+    environment:
+      - PUID=${UID}
+      - PGID=${GID}
+      - TZ=${TIMEZONE}
+    volumes:
+      - ./prowlarr:/config
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.port=9696'
+      - 'traefik.http.routers.prowlarr.rule=Host(`prowlarr.${HOSTNAME}`)'
+      - 'traefik.http.routers.prowlarr.entrypoints=https'
+      - 'traefik.http.routers.prowlarr.tls=true'
+      - 'traefik.http.routers.prowlarr.tls.certresolver=letsencrypt'
+      - 'traefik.http.routers.prowlarr.middlewares=authelia@docker'
+    expose:
+      - 9696
     restart: unless-stopped
