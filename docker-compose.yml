@@ -77,13 +77,15 @@ services:
       - '--entrypoints.https.address=:443'
       - '--certificatesResolvers.letsencrypt.acme.email=${LETSENCRYPT_EMAIL}'
       - '--certificatesResolvers.letsencrypt.acme.storage=/etc/traefik/acme.json'
-      - '--certificatesResolvers.letsencrypt.acme.httpChallenge.entryPoint=http'
+      - '--certificatesResolvers.letsencrypt.acme.dnsChallenge.provider=desec'
       - '--log=true'
       - '--log.level=INFO'
       - '--log.filepath=/etc/traefik/traefik.log'
       - '--accesslog=true'
       - '--accesslog.fields.headers.defaultmode=keep'
       - '--accesslog.filepath=/etc/traefik/access.log'
+    environment:
+      - DESEC_TOKEN=${DESEC_TOKEN}
 
   whoami:
     image: traefik/whoami
